@@ -15,11 +15,11 @@ can be found in PatternFinder.Util.LisFinder.Find(string input) method.
 Added xUnit unit tests to perform edge case testing as well as validate given test cases.
 
 ## Continuous Integration
-Github Action Workflow is being used for CI pipeline integration. Link - https://github.com/saikatkrroy/24e2a906-733f-4edb-abd1-c9fe871d60d7/actions/workflows/Build.yml
-Added SonarQube Scanner into the workflow for linting. Link - https://sonarcloud.io/project/overview?id=saikatkrroy_24e2a906-733f-4edb-abd1-c9fe871d60d7
+1. Github Action Workflow is being used for CI pipeline integration. Link - https://github.com/saikatkrroy/24e2a906-733f-4edb-abd1-c9fe871d60d7/actions/workflows/Build.yml
+2. Added SonarQube Scanner into the workflow for linting. Link - https://sonarcloud.io/project/overview?id=saikatkrroy_24e2a906-733f-4edb-abd1-c9fe871d60d7
 
 ## Verification
-The solution can be tested using Unit Test as well as in Visual Studio
+The solution can be tested using Unit Test, Visual Studio, and Docker
 
 ### Command Prompt
 1. Clone the Repository in your local
