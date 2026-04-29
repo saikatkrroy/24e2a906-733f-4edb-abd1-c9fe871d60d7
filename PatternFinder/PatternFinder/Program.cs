@@ -13,9 +13,16 @@ namespace PatternFinder
             var lisFinder = new LisFinder();
             Console.WriteLine("Enter a sequence of integers separated by spaces:");
             string input = Console.ReadLine() ?? string.Empty;
-            string result = lisFinder.Find(input);
-            Console.WriteLine("The earliest longest increasing contiguous subarray is:");
-            Console.WriteLine(result);
+            var result = lisFinder.Find(input);
+            if (result.IsSuccess)
+            {
+                Console.WriteLine("The earliest longest increasing contiguous subarray is:");
+                Console.WriteLine(result.Value);
+            }
+            else
+            {
+                Console.WriteLine("Error: " + result.Error);
+            }
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
         }

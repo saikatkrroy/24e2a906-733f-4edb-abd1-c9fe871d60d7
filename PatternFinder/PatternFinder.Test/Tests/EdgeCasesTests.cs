@@ -10,36 +10,41 @@ namespace PatternFinder.Test.Tests
         [Fact]
         public void Solve_NegativeIntegers_HandledCorrectly()
         {
-            Assert.Equal("-5 -3 -1", lisFinder.Find("-5 -3 -1 -2"));
+            var result = lisFinder.Find("-5 -3 -1 -2");
+            Assert.Equal("-5 -3 -1", result.Value);
         }
         [Fact]
         public void Solve_MixedNegativeAndPositive_HandledCorrectly()
         {
-            Assert.Equal("-2 -1 0 1", lisFinder.Find("5 -2 -1 0 1"));
+            var result = lisFinder.Find("5 -2 -1 0 1");
+            Assert.Equal("-2 -1 0 1",result.Value);
         }
         [Fact]
         public void Solve_MinAndMaxIntAscending_ReturnsBoth()
         {
-            Assert.Equal($"{int.MinValue} {int.MaxValue}",
-                lisFinder.Find($"{int.MinValue} {int.MaxValue}"));
+            var result = lisFinder.Find($"{int.MinValue} {int.MaxValue}");
+            Assert.Equal($"{int.MinValue} {int.MaxValue}", result.Value);
         }
 
         [Fact]
         public void Solve_NullInput_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => lisFinder.Find(null!));
+            var result = lisFinder.Find(null!);
+            Assert.False(result.IsSuccess);
         }
 
         [Fact]
         public void Solve_EmptyString_ThrowsArgumentException()
         {
-            Assert.Throws<ArgumentException>(() => lisFinder.Find(""));
+            var result = lisFinder.Find("");
+            Assert.False(result.IsSuccess);
         }
 
         [Fact]
         public void Solve_WhitespaceOnlyString_ThrowsArgumentException()
         {
-            Assert.Throws<ArgumentException>(() => lisFinder.Find("   "));
+            var result = lisFinder.Find("   ");
+            Assert.False(result.IsSuccess);
         }
         [Fact]
         public void FindLIS_EmptySequence_ReturnsZeroLength()
@@ -59,7 +64,6 @@ namespace PatternFinder.Test.Tests
         [Fact]
         public void FindLIS_AllDescending_ReturnsFirstElementOnly()
         {
-            // Every element starts a new run of length 1; earliest index wins.
             var (start, length) = lisFinder.FindEarliestLongestIncreasingSubarray(new[] { 9, 5, 3, 1 });
             Assert.Equal(0, start);
             Assert.Equal(1, length);
@@ -91,38 +95,38 @@ namespace PatternFinder.Test.Tests
         [Fact]
         public void ParseInput_TokenWithLetterSuffix_ThrowsArgumentException()
         {
-            var ex = Assert.Throws<ArgumentException>(() => lisFinder.Find("12px 3"));
-            Assert.Contains("12px", ex.Message);
+            var result = lisFinder.Find("12px 3");
+            Assert.False(result.IsSuccess);
+            Assert.Contains("12px", result.Error);
         }
         [Fact]
         public void ParseInput_FloatingPointToken_ThrowsArgumentException()
         {
-            var ex = Assert.Throws<ArgumentException>(() => lisFinder.Find("1 3.14 5"));
-            Assert.Contains("3.14", ex.Message);
+            var result = lisFinder.Find("1 3.14 5");
+            Assert.False(result.IsSuccess);
+            Assert.Contains("3.14", result.Error);
         }
         [Fact]
         public void ParseInput_HexToken_ThrowsArgumentException()
         {
-            var ex = Assert.Throws<ArgumentException>(() => lisFinder.Find("0xFF 3"));
-            Assert.Contains("0xFF", ex.Message);
+            var result = lisFinder.Find("0xFF 3");
+            Assert.False(result.IsSuccess);
+            Assert.Contains("0xFF", result.Error);
         }
-        [Fact]
-        public void ParseInput_ErrorMessageContainsOffendingToken()
-        {
-            var ex = Assert.Throws<ArgumentException>(() => lisFinder.Find("1 2 BAD 4"));
-            Assert.Contains("BAD", ex.Message);
-        }
-
         [Fact]
         public void ParseInput_ErrorMessageContainsPosition()
         {
-            var ex = Assert.Throws<ArgumentException>(() => lisFinder.Find("1 2 BAD 4"));
-            Assert.Contains("2", ex.Message);
+            var result = lisFinder.Find("1 2 BAD 4");
+            Assert.False(result.IsSuccess);
+            Assert.Contains("2", result.Error);
+            Assert.Contains("BAD", result.Error);
         }
         [Fact]
         public void Solve_OverflowToken_ThrowsArgumentException()
         {
-            Assert.Throws<ArgumentException>(() => lisFinder.Find("1 9999999999 3"));
+            var result = lisFinder.Find("1 9999999999 3");
+            Assert.False(result.IsSuccess);
+            Assert.Contains("9999999999", result.Error);
         }
     }
 }
