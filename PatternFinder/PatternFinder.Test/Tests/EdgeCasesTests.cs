@@ -76,7 +76,6 @@ namespace PatternFinder.Test.Tests
         [Fact]
         public void FindLIS_TiedLength_ReturnsEarliestStart()
         {
-            // [5,6,1,2] → two runs of length 2; earliest start (0) wins.
             var (start, length) = lisFinder.FindEarliestLongestIncreasingSubarray(new[] { 5, 6, 1, 2 });
             Assert.Equal(0, start);
             Assert.Equal(2, length);
@@ -85,10 +84,45 @@ namespace PatternFinder.Test.Tests
         [Fact]
         public void FindLIS_EqualAdjacentValues_BreaksRun()
         {
-            // [1,2,2,3] → [1,2](len 2) then [2,3](len 2) → earliest [1,2]
             var (start, length) = lisFinder.FindEarliestLongestIncreasingSubarray(new[] { 1, 2, 2, 3 });
             Assert.Equal(0, start);
             Assert.Equal(2, length);
+        }
+        [Fact]
+        public void ParseInput_TokenWithLetterSuffix_ThrowsArgumentException()
+        {
+            var ex = Assert.Throws<ArgumentException>(() => lisFinder.Find("12px 3"));
+            Assert.Contains("12px", ex.Message);
+        }
+        [Fact]
+        public void ParseInput_FloatingPointToken_ThrowsArgumentException()
+        {
+            var ex = Assert.Throws<ArgumentException>(() => lisFinder.Find("1 3.14 5"));
+            Assert.Contains("3.14", ex.Message);
+        }
+        [Fact]
+        public void ParseInput_HexToken_ThrowsArgumentException()
+        {
+            var ex = Assert.Throws<ArgumentException>(() => lisFinder.Find("0xFF 3"));
+            Assert.Contains("0xFF", ex.Message);
+        }
+        [Fact]
+        public void ParseInput_ErrorMessageContainsOffendingToken()
+        {
+            var ex = Assert.Throws<ArgumentException>(() => lisFinder.Find("1 2 BAD 4"));
+            Assert.Contains("BAD", ex.Message);
+        }
+
+        [Fact]
+        public void ParseInput_ErrorMessageContainsPosition()
+        {
+            var ex = Assert.Throws<ArgumentException>(() => lisFinder.Find("1 2 BAD 4"));
+            Assert.Contains("2", ex.Message);
+        }
+        [Fact]
+        public void Solve_OverflowToken_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => lisFinder.Find("1 9999999999 3"));
         }
     }
 }
