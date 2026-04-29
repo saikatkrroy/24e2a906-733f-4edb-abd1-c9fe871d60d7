@@ -19,9 +19,9 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0
+        dotnet-version: 8.0.x
 
-    - name: Setup Java (required by SonarCloud)
+    - name: Setup Java
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
@@ -36,7 +36,7 @@ jobs:
     - name: Install SonarScanner
       run: dotnet tool install --global dotnet-sonarscanner
 
-    - name: Add dotnet tools to PATH
+    - name: Add tools to PATH
       run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
     - name: Begin SonarCloud analysis
@@ -46,8 +46,9 @@ jobs:
         dotnet sonarscanner begin \
           /k:"saikatkrroy_24e2a906-733f-4edb-abd1-c9fe871d60d7" \
           /o:"saikatkrroy" \
+          /d:sonar.host.url="https://sonarcloud.io" \
           /d:sonar.login="$SONAR_TOKEN" \
-          /d:sonar.host.url="https://sonarcloud.io"
+          /d:sonar.cs.opencover.reportsPaths=coverage/coverage.opencover.xml
 
     - name: Restore dependencies
       run: dotnet restore ./PatternFinder/PatternFinder/PatternFinder.csproj
@@ -55,9 +56,24 @@ jobs:
     - name: Build Project
       run: dotnet build ./PatternFinder/PatternFinder/PatternFinder.csproj --no-restore
 
-    - name: Run Unit Tests
-      run: dotnet test ./PatternFinder/PatternFinder.Test/PatternFinder.Test.csproj
-      
+    - name: Install coverage tool
+      run: dotnet tool install -g dotnet-reportgenerator-globaltool
+
+    - name: Run Unit Tests with coverage
+      run: |
+        dotnet test ./PatternFinder/PatternFinder.Test/PatternFinder.Test.csproj \
+        --collect:"XPlat Code Coverage" \
+        --results-directory ./TestResults
+
+    - name: Convert coverage report
+      run: |
+        reportgenerator \
+          -reports:"**/TestResults/**/coverage.cobertura.xml" \
+          -targetdir:"coverage" \
+          -reporttypes:opencover
+
+    - name: Verify coverage file exists
+      run: find . -name "coverage.opencover.xml"
 
     - name: End SonarCloud analysis
       env:
