@@ -53,10 +53,10 @@ jobs:
       run: dotnet restore ./PatternFinder/PatternFinder/PatternFinder.csproj
 
     - name: Build Project
-      run: dotnet build PatternFinder.csproj --no-restore
+      run: dotnet build ./PatternFinder/PatternFinder/PatternFinder.csproj --no-restore
 
     - name: Run Unit Tests
-      run: dotnet test PatternFinder.Test.csproj --no-build
+      run: dotnet test ./PatternFinder/PatternFinder.Test/PatternFinder.Test.csproj --no-build
 
     - name: End SonarCloud analysis
       env:
