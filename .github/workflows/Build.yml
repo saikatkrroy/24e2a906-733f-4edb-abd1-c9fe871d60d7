@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
@@ -24,20 +25,26 @@ jobs:
     - name: Setup Java
       uses: actions/setup-java@v4
       with:
-        distribution: 'temurin'
-        java-version: '17'
+        distribution: temurin
+        java-version: 17
 
-    - name: Cache SonarCloud packages
+    - name: Cache SonarCloud
       uses: actions/cache@v4
       with:
         path: ~/.sonar/cache
-        key: ${{ runner.os }}-sonar
+        key: sonar-${{ runner.os }}
 
     - name: Install SonarScanner
       run: dotnet tool install --global dotnet-sonarscanner
 
+    - name: Install ReportGenerator
+      run: dotnet tool install --global dotnet-reportgenerator-globaltool
+
     - name: Add tools to PATH
       run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+    - name: Restore
+      run: dotnet restore ./PatternFinder/PatternFinder/PatternFinder.csproj
 
     - name: Begin SonarCloud analysis
       env:
@@ -47,33 +54,30 @@ jobs:
           /k:"saikatkrroy_24e2a906-733f-4edb-abd1-c9fe871d60d7" \
           /o:"saikatkrroy" \
           /d:sonar.host.url="https://sonarcloud.io" \
-          /d:sonar.login="$SONAR_TOKEN" \
-          /d:sonar.cs.opencover.reportsPaths=coverage/coverage.opencover.xml
+          /d:sonar.login="$SONAR_TOKEN"
 
-    - name: Restore dependencies
-      run: dotnet restore ./PatternFinder/PatternFinder/PatternFinder.csproj
-
-    - name: Build Project
+    - name: Build
       run: dotnet build ./PatternFinder/PatternFinder/PatternFinder.csproj --no-restore
 
-    - name: Install coverage tool
-      run: dotnet tool install -g dotnet-reportgenerator-globaltool
-
-    - name: Run Unit Tests with coverage
+    - name: Test with coverage
       run: |
         dotnet test ./PatternFinder/PatternFinder.Test/PatternFinder.Test.csproj \
+        --configuration Release \
         --collect:"XPlat Code Coverage" \
         --results-directory ./TestResults
 
-    - name: Convert coverage report
+    - name: List test results
+      run: find ./TestResults -type f
+
+    - name: Generate OpenCover report
       run: |
         reportgenerator \
-          -reports:"**/TestResults/**/coverage.cobertura.xml" \
-          -targetdir:"coverage" \
+          -reports:"./TestResults/**/coverage.cobertura.xml" \
+          -targetdir:"./coverage" \
           -reporttypes:opencover
 
-    - name: Verify coverage file exists
-      run: find . -name "coverage.opencover.xml"
+    - name: Verify OpenCover file
+      run: ls -R ./coverage
 
     - name: End SonarCloud analysis
       env:
