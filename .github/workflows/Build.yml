@@ -7,9 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -38,24 +36,30 @@ jobs:
     - name: Install SonarScanner
       run: dotnet tool install --global dotnet-sonarscanner
 
+    - name: Add dotnet tools to PATH
+      run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
     - name: Begin SonarCloud analysis
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
         dotnet sonarscanner begin \
-        /k:"saikatkrroy_24e2a906-733f-4edb-abd1-c9fe871d60d7" \
-        /o:"saikatkrroy" \
-        /d:sonar.token="$SONAR_TOKEN" \
-        /d:sonar.host.url="https://sonarcloud.io"
+          /k:"saikatkrroy_24e2a906-733f-4edb-abd1-c9fe871d60d7" \
+          /o:"saikatkrroy" \
+          /d:sonar.login="$SONAR_TOKEN" \
+          /d:sonar.host.url="https://sonarcloud.io"
+
     - name: Restore dependencies
       run: dotnet restore PatternFinder.csproj
 
     - name: Build Project
       run: dotnet build PatternFinder.csproj --no-restore
+
     - name: Run Unit Tests
-      run: dotnet test PatternFinder.Test.csproj
+      run: dotnet test PatternFinder.Test.csproj --no-build
+
     - name: End SonarCloud analysis
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
-        dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
+        dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
